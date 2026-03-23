@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Taming the High Cost of College — Analytics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root {
+    --bg: #f7f6f3;
+    --surface: #ffffff;
+    --surface2: #f0efe9;
+    --border: #e4e2da;
+    --text: #1a1917;
+    --muted: #6b6a65;
+    --accent: #1a4d8f;
+    --accent2: #a83258;
+    --green: #1a6645;
+    --red: #b83232;
+    --navy: #0f1f3d;
+    --font: 'DM Sans', sans-serif;
+    --mono: 'DM Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font); background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; }
+
+  header {
+    background: var(--navy);
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .logo { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.9); letter-spacing: 0.02em; }
+  .logo span { color: rgba(255,255,255,0.4); margin: 0 8px; }
+  .header-right { font-size: 11px; color: rgba(255,255,255,0.35); font-family: var(--mono); }
+
+  nav {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    display: flex;
+    gap: 0;
+  }
+  .nav-tab {
+    padding: 14px 20px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: color 0.15s, border-color 0.15s;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+  }
+  .nav-tab:hover { color: var(--text); }
+  .nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .controls-bar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 32px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .ctrl-group { display: flex; align-items: center; gap: 8px; }
+  .ctrl-group label { font-size: 11px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  select {
+    font-family: var(--font);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 5px 28px 5px 10px;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236b6a65'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    cursor: pointer;
+  }
+  select:focus { outline: none; border-color: var(--accent); }
+
+  main { padding: 28px 32px; max-width: 1280px; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .section-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 0 0 12px;
+  }
+
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .kpi {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .kpi-label { font-size: 11px; color: var(--muted); margin-bottom: 6px; }
+  .kpi-value { font-size: 22px; font-weight: 600; color: var(--text); letter-spacing: -0.02em; line-height: 1; }
+  .kpi-delta { font-size: 11px; margin-top: 5px; font-family: var(--mono); }
+  .kpi-delta.up { color: var(--green); }
+  .kpi-delta.dn { color: var(--red); }
+  .kpi-delta.neutral { color: var(--muted); }
+
+  .chart-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .chart-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+  }
+  .chart-card.wide { grid-column: 1 / -1; }
+  .card-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .card-sub {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .legend-dot {
+    width: 8px; height: 8px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+  canvas { display: block; }
+
+  .table-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+  .table-card .card-title { padding: 16px 20px 0; }
+  .table-card .card-sub { padding: 2px 20px 12px; border-bottom: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  thead th {
+    text-align: left;
+    font-weight: 600;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    padding: 10px 20px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+  }
+  thead th:not(:first-child) { text-align: right; }
+  tbody td {
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+  tbody td:not(:first-child) { text-align: right; font-family: var(--mono); font-size: 11px; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover td { background: var(--bg); }
+
+  .yoy-pos { color: var(--green); font-family: var(--mono); font-size: 10px; }
+  .yoy-neg { color: var(--red); font-family: var(--mono); font-size: 10px; }
+  .yoy-neutral { color: var(--muted); font-family: var(--mono); font-size: 10px; }
+
+  .ch-breakdown {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .ch-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+  }
+  .ch-card h4 {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  .ch-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border); }
+  .ch-row:last-child { border-bottom: none; }
+  .ch-name { font-size: 12px; color: var(--text); }
+  .ch-num { font-size: 12px; font-weight: 500; font-family: var(--mono); color: var(--text); }
+
+  .no-data { font-size: 12px; color: var(--muted); padding: 16px 0; text-align: center; }
+
+  footer {
+    margin-top: 40px;
+    padding: 20px 32px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .updated { font-family: var(--mono); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Taming the High Cost of College <span>|</span> Analytics Dashboard</div>
+  <div class="header-right">Data: Windsor.ai → Google Sheets → GitHub Pages</div>
+</header>
+
+<nav>
+  <button class="nav-tab active" onclick="showTab('site',this)">Site analytics</button>
+  <button class="nav-tab" onclick="showTab('ads',this)">Ads performance</button>
+</nav>
+
+<div class="controls-bar">
+  <div class="ctrl-group">
+    <label>Month</label>
+    <select id="moSel"></select>
+  </div>
+  <div class="ctrl-group" id="chanCtrl" style="display:none;">
+    <label>Channel</label>
+    <select id="chSel">
+      <option value="all">All channels</option>
+      <option value="gads">Google Ads</option>
+      <option value="meta">Meta Ads</option>
+    </select>
+  </div>
+</div>
+
+<main>
+
+<!-- ===================== SITE TAB ===================== -->
+<div id="site" class="tab-panel active">
+  <div class="section-label">Site overview — selected month vs same month prior year</div>
+  <div class="kpi-row" id="siteKPI"></div>
+
+  <div class="chart-grid">
+    <div class="chart-card wide">
+      <div class="card-title">Total users — monthly trend</div>
+      <div class="card-sub">Mar 2024 – Feb 2026 · current year vs prior year overlay</div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#1a4d8f"></div>2024–2025</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#1a4d8f;opacity:0.35"></div>2023–2024 (prior year)</div>
+      </div>
+      <div style="position:relative;width:100%;height:220px;"><canvas id="trendC"></canvas></div>
+    </div>
+  </div>
+
+  <div class="chart-grid">
+    <div class="chart-card">
+      <div class="card-title">Sessions by device</div>
+      <div class="card-sub">Selected month</div>
+      <div class="legend" id="devLeg"></div>
+      <div style="position:relative;width:100%;height:200px;"><canvas id="devC"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="card-title">Paid vs organic sessions</div>
+      <div class="card-sub">Selected month</div>
+      <div class="legend" id="chanLeg"></div>
+      <div style="position:relative;width:100%;height:200px;"><canvas id="chanC"></canvas></div>
+    </div>
+  </div>
+
+  <div class="chart-grid">
+    <div class="chart-card wide">
+      <div class="card-title">Bounce rate trend</div>
+      <div class="card-sub">Monthly · current year vs prior year</div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#a83258"></div>Current</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#a83258;opacity:0.35"></div>Prior year</div>
+      </div>
+      <div style="position:relative;width:100%;height:180px;"><canvas id="brC"></canvas></div>
+    </div>
+  </div>
+
+  <div class="section-label">Sub-sections — selected month</div>
+  <div class="chart-grid">
+    <div class="chart-card">
+      <div class="card-title">Users by section</div>
+      <div style="position:relative;width:100%;height:200px;"><canvas id="subUsersC"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="card-title">Newsletter signups by section</div>
+      <div style="position:relative;width:100%;height:200px;"><canvas id="subNlC"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== ADS TAB ===================== -->
+<div id="ads" class="tab-panel">
+  <div class="section-label">Ads overview — selected month vs same month prior year</div>
+  <div class="kpi-row" id="adsKPI"></div>
+
+  <div class="chart-grid">
+    <div class="chart-card wide">
+      <div class="card-title">Monthly spend</div>
+      <div class="card-sub">Google Ads vs Meta Ads — stacked</div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#1a4d8f"></div>Google Ads</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#a83258"></div>Meta Ads</div>
+      </div>
+      <div style="position:relative;width:100%;height:220px;"><canvas id="spendC"></canvas></div>
+    </div>
+  </div>
+
+  <div class="chart-grid">
+    <div class="chart-card">
+      <div class="card-title">Conversions over time</div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#1a4d8f"></div>Google Ads</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#a83258"></div>Meta Ads</div>
+      </div>
+      <div style="position:relative;width:100%;height:200px;"><canvas id="convC"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="card-title">Cost per result over time</div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#1a4d8f"></div>Google Ads</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#a83258"></div>Meta Ads</div>
+      </div>
+      <div style="position:relative;width:100%;height:200px;"><canvas id="cprC"></canvas></div>
+    </div>
+  </div>
+
+  <div class="section-label">Channel breakdown — selected month</div>
+  <div class="ch-breakdown">
+    <div class="ch-card">
+      <h4>Google Ads</h4>
+      <div id="gadsBreak"></div>
+    </div>
+    <div class="ch-card">
+      <h4>Meta Ads</h4>
+      <div id="metaBreak"></div>
+    </div>
+  </div>
+
+  <div class="section-label">Top campaigns — Google Ads, selected month</div>
+  <div class="table-card">
+    <div class="card-title" id="campTitle" style="padding:16px 20px 4px;"></div>
+    <div class="card-sub" id="campSub" style="padding:0 20px 12px;border-bottom:1px solid var(--border);"></div>
+    <div style="overflow-x:auto;"><table id="campTable"></table></div>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <div>Taming the High Cost of College — Monthly Analytics Report</div>
+  <div class="updated">Last updated: Mar 2026 · Data via Windsor.ai</div>
+</footer>
+
+<script>
+const LB=['Mar 24','Apr 24','May 24','Jun 24','Jul 24','Aug 24','Sep 24','Oct 24','Nov 24','Dec 24','Jan 25','Feb 25','Mar 25','Apr 25','May 25','Jun 25','Jul 25','Aug 25','Sep 25','Oct 25','Nov 25','Dec 25','Jan 26','Feb 26'];
+const MO=['2024-03','2024-04','2024-05','2024-06','2024-07','2024-08','2024-09','2024-10','2024-11','2024-12','2025-01','2025-02','2025-03','2025-04','2025-05','2025-06','2025-07','2025-08','2025-09','2025-10','2025-11','2025-12','2026-01','2026-02'];
+
+const GA4={
+  users:[12134,11999,6829,6634,6354,4245,6637,8276,9926,9281,9130,6940,5297,5676,5460,4805,6511,9948,6448,6136,6372,5769,6425,5284],
+  sessions:[14194,13894,8031,7484,7439,4963,8017,9863,11821,11268,11091,8395,6159,6459,6193,5432,7393,10891,7534,7466,7380,6450,7501,6037],
+  bounce:[0.2653,0.2586,0.2572,0.2279,0.2750,0.2394,0.2714,0.2395,0.2568,0.2967,0.2873,0.3087,0.2605,0.2661,0.2635,0.2303,0.2293,0.2273,0.2132,0.2238,0.4141,0.4223,0.3808,0.4488],
+  paid:[4605,3823,2975,3934,3536,2589,3972,5391,6280,4638,4845,3200,2998,3561,3752,3537,5026,7827,5182,4851,3214,2888,3735,2335],
+  organic:[7635,8364,3655,2105,2406,1445,2148,2741,3437,4148,4181,3259,2758,2433,1971,1472,1535,1976,1654,2055,1442,1095,1404,1376],
+  desktop:[5943,6324,3686,2517,2720,1762,3101,3165,3449,4108,4246,3531,2230,2266,1805,1596,2159,2773,1932,2382,4035,3767,3678,3453],
+  mobile:[8061,7445,4264,4774,4558,3109,4628,6229,7633,6968,6700,4695,3289,3375,3021,2969,4241,5456,4409,4903,3205,2333,3384,2023],
+  tablet:[189,121,81,189,161,92,288,469,738,192,145,169,639,816,1367,867,993,2661,1192,181,140,350,439,561],
+};
+
+const SUB={
+  labels:['SAI Calculator','Inheritance Blog','Scholarship Guide','Cost of College'],
+  users:[[5635,5421,2436,2121,1876,1349,1982,2829,3506,2999,3204,2651,1650,1732,1670,1261,1843,2698,1811,1877,1598,1446,1785,1246],[1378,870,57,370,399,255,624,812,951,666,700,574,541,626,792,923,817,1053,1063,695,387,461,586,466],[310,361,232,204,198,142,170,218,192,201,211,157,133,176,149,135,150,130,125,168,201,154,200,196],[1205,1147,1237,1221,1175,745,944,1175,1218,1211,1027,495,595,767,752,1030,939,1317,666,634,575,402,449,261]],
+  nl:[[364,340,255,290,110,45,365,511,571,315,355,280,1065,894,854,308,184,400,122,67,50,31,51,21],[13,10,7,9,34,1,60,45,84,24,40,24,149,215,1279,727,173,264,305,4,2,3,2,1],[0,15,22,10,12,0,10,20,5,2,17,12,2,12,12,5,2,2,0,0,0,0,0,2],[24,68,81,141,67,51,82,80,69,95,107,24,90,119,144,195,49,37,24,7,7,6,7,3]],
+};
+
+const GADS={
+  spend:[1729.49,1432.66,929.20,2255.92,1514.96,1260.58,1076.88,1089.64,1699.38,1724.65,1809.91,1559.24,1640.56,1993.02,2033.81,2070.88,2275.73,2771.38,2440.87,2664.47,2212.70,2029.74,2168.58,1267.14],
+  conv:[96.51,105,110,157,168,147,286,462,661,344.93,487.77,589,748,732.94,1041.74,1091,1406,1438.78,1054.90,990.19,1253,1395.19,2354.86,1391.02],
+  clicks:[5730,4897,3319,4144,3590,4130,4156,5610,6380,4762,5112,3426,2952,3616,4074,3946,5465,7877,4068,5534,4087,3600,5617,3018],
+  imp:[69663,61247,32632,101869,47805,44642,45556,58420,138827,152025,224781,396629,282556,281293,330556,249484,244295,274407,261386,311406,276477,164460,337845,183520],
+};
+
+const META_SPEND=Array(24).fill(0);const META_CONV=Array(24).fill(0);
+const META_CLICKS=Array(24).fill(0);const META_IMP=Array(24).fill(0);
+[[14,126.01,218443,377,116],[15,452.57,462101,1790,1182],[16,608.76,313129,2777,2381],[17,563.49,244656,2259,1774],[18,458.79,180498,1733,1380]].forEach(function(d){
+  META_SPEND[d[0]]=d[1];META_IMP[d[0]]=d[2];META_CLICKS[d[0]]=d[3];META_CONV[d[0]]=d[4];
+});
+
+const CAMPS={
+  '2024-03':[['Inheritance Blog Post',1031.85,1626,1],['Search - Calculators',304.26,2060,44.5],['SAI Calculator - US',121.45,718,0],['Cost of College - PA',117.63,338,27],['Cost of College - TX',60.75,357,10],['Search - Cost of College',35.95,230,9],['Cost of College - WI',53.82,348,2]],
+  '2024-11':[['Inheritance Blog Post',456.03,1176,510],['Search - Calculators',152.17,2850,71],['YT - SGBP',375.98,133,0],['Search - SGBP',222.80,806,19],['Remarketing',152.42,200,10],['Cost of College - PA',118.50,269,19],['Cost of College - TX',61.04,234,4]],
+  '2025-08':[['Inheritance Blog Post',607.08,1645,727],['PMAX Webinar 2025',598.65,1913,2],['Search - Calculators',304.23,2225,244],['Video Engagement - 6 Ways to Pay',310.89,433,333],['Search - SGBP',300.94,281,33.8],['YT - 6 Ways to Pay',60.04,65,54],['Remarketing',152.30,450,3]],
+  '2026-01':[['YT - 10 Types',448.86,1057,1014],['YT - 6 Ways to Pay',448.44,1083,1022],['Inheritance Blog Post',601.76,966,244],['Search - SGBP',303.36,228,23],['Search - Calculators',231.53,2030,44.9],['Search - Cost of College',96.33,215,7]],
+  '2026-02':[['YT - 10 Types',202.42,421,408],['YT - 6 Ways to Pay',200.02,487,465],['Inheritance Blog Post',405.22,838,469.9],['Search - SGBP',303.68,174,23.5],['Search - Calculators',91.18,977,17.6],['Search - Cost of College',64.61,121,7]],
+};
+
+const BLUE='#1a4d8f',PINK='#a83258',TEAL='#1a6645',AMBER='#7a4a0a';
+const BLUE_A='rgba(26,77,143,0.18)',PINK_A='rgba(168,50,88,0.18)';
+const SUB_COLORS=['#1a4d8f','#a83258','#1a6645','#7a4a0a'];
+
+let charts={};
+function mk(id,cfg){if(charts[id])charts[id].destroy();charts[id]=new Chart(document.getElementById(id),cfg);}
+function fmt(n){return Math.round(n).toLocaleString();}
+function fmtM(n){return '$'+n.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});}
+function yoyStr(c,p){if(!p||p===0)return'—';var d=((c-p)/p*100);return(d>=0?'+':'')+d.toFixed(1)+'%';}
+function yoyCls(c,p,lowerBetter){if(!p||p===0)return'neutral';var up=c>p;return(lowerBetter?!up:up)?'up':'dn';}
+
+MO.forEach(function(m,i){var o=document.createElement('option');o.value=i;o.textContent=LB[i];document.getElementById('moSel').appendChild(o);});
+document.getElementById('moSel').value=23;
+
+function showTab(id,btn){
+  document.querySelectorAll('.tab-panel').forEach(function(t){t.classList.remove('active');});
+  document.querySelectorAll('.nav-tab').forEach(function(t){t.classList.remove('active');});
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  document.getElementById('chanCtrl').style.display=id==='ads'?'flex':'none';
+  update();
+}
+
+function update(){
+  var i=parseInt(document.getElementById('moSel').value);
+  var py=i>=12?i-12:-1;
+  var activeTab=document.querySelector('.tab-panel.active').id;
+
+  if(activeTab==='site') updateSite(i,py);
+  else updateAds(i,py);
+}
+
+function updateSite(i,py){
+  var u=GA4.users[i],pu=py>=0?GA4.users[py]:null;
+  var s=GA4.sessions[i],ps=py>=0?GA4.sessions[py]:null;
+  var b=GA4.bounce[i],pb=py>=0?GA4.bounce[py]:null;
+  var pd=GA4.paid[i],ppd=py>=0?GA4.paid[py]:null;
+  var og=GA4.organic[i],pog=py>=0?GA4.organic[py]:null;
+  var spu=s/u,pspu=ps&&pu?ps/pu:null;
+
+  var kpis=[
+    {l:'Total users',v:fmt(u),d:yoyStr(u,pu),cls:yoyCls(u,pu,false)},
+    {l:'Sessions',v:fmt(s),d:yoyStr(s,ps),cls:yoyCls(s,ps,false)},
+    {l:'Bounce rate',v:(b*100).toFixed(1)+'%',d:yoyStr(b,pb),cls:yoyCls(b,pb,true)},
+    {l:'Paid sessions',v:fmt(pd),d:yoyStr(pd,ppd),cls:yoyCls(pd,ppd,false)},
+    {l:'Organic sessions',v:fmt(og),d:yoyStr(og,pog),cls:yoyCls(og,pog,false)},
+    {l:'Sessions / user',v:spu.toFixed(2),d:yoyStr(spu,pspu),cls:yoyCls(spu,pspu,false)},
+  ];
+  document.getElementById('siteKPI').innerHTML=kpis.map(function(k){
+    return '<div class="kpi"><div class="kpi-label">'+k.l+'</div><div class="kpi-value">'+k.v+'</div><div class="kpi-delta '+k.cls+'">'+k.d+' vs prior year</div></div>';
+  }).join('');
+
+  var priorUsers=Array(24).fill(null).map(function(_,j){return j>=12?GA4.users[j-12]:null;});
+  mk('trendC',{type:'line',data:{labels:LB,datasets:[
+    {label:'Current',data:GA4.users,borderColor:BLUE,backgroundColor:BLUE_A,fill:true,tension:0.3,pointRadius:2,borderWidth:2},
+    {label:'Prior year',data:priorUsers,borderColor:BLUE,backgroundColor:'transparent',borderDash:[4,3],tension:0.3,pointRadius:0,borderWidth:1.5,opacity:0.4},
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{autoSkip:true,maxTicksLimit:8,color:'#6b6a65',font:{size:10}}},y:{ticks:{color:'#6b6a65',font:{size:10},callback:function(v){return v>=1000?(v/1000).toFixed(0)+'K':v;}}}}}});
+
+  var dL=['Desktop','Mobile','Tablet'],dD=[GA4.desktop[i],GA4.mobile[i],GA4.tablet[i]],dC=[BLUE,PINK,AMBER];
+  document.getElementById('devLeg').innerHTML=dL.map(function(l,j){return'<div class="legend-item"><div class="legend-dot" style="background:'+dC[j]+'"></div>'+l+': '+fmt(dD[j])+'</div>';}).join('');
+  mk('devC',{type:'doughnut',data:{labels:dL,datasets:[{data:dD,backgroundColor:dC,borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},cutout:'62%'}});
+
+  document.getElementById('chanLeg').innerHTML='<div class="legend-item"><div class="legend-dot" style="background:'+BLUE+'"></div>Paid: '+fmt(pd)+'</div><div class="legend-item"><div class="legend-dot" style="background:'+TEAL+'"></div>Organic: '+fmt(og)+'</div>';
+  mk('chanC',{type:'doughnut',data:{labels:['Paid','Organic'],datasets:[{data:[pd,og],backgroundColor:[BLUE,TEAL],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},cutout:'62%'}});
+
+  var priorBounce=Array(24).fill(null).map(function(_,j){return j>=12?(GA4.bounce[j-12]*100):null;});
+  mk('brC',{type:'line',data:{labels:LB,datasets:[
+    {label:'Current',data:GA4.bounce.map(function(v){return+(v*100).toFixed(1);}),borderColor:PINK,backgroundColor:PINK_A,fill:true,tension:0.3,pointRadius:2,borderWidth:2},
+    {label:'Prior year',data:priorBounce,borderColor:PINK,backgroundColor:'transparent',borderDash:[4,3],tension:0.3,pointRadius:0,borderWidth:1.5},
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{autoSkip:true,maxTicksLimit:8,color:'#6b6a65',font:{size:10}}},y:{ticks:{color:'#6b6a65',font:{size:10},callback:function(v){return v+'%';}}}}}});
+
+  mk('subUsersC',{type:'bar',data:{labels:SUB.labels,datasets:[{data:SUB.users.map(function(a){return a[i];}),backgroundColor:SUB_COLORS,borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#6b6a65',font:{size:10},callback:function(v){return v>=1000?(v/1000).toFixed(0)+'K':v;}}},y:{ticks:{color:'#6b6a65',font:{size:10}}}}}});
+
+  mk('subNlC',{type:'bar',data:{labels:SUB.labels,datasets:[{data:SUB.nl.map(function(a){return a[i];}),backgroundColor:SUB_COLORS,borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#6b6a65',font:{size:10}}},y:{ticks:{color:'#6b6a65',font:{size:10}}}}}});
+}
+
+function updateAds(i,py){
+  var ch=document.getElementById('chSel').value;
+  var gS=GADS.spend[i],gC=GADS.conv[i],gCl=GADS.clicks[i],gI=GADS.imp[i];
+  var mS=META_SPEND[i],mC=META_CONV[i],mCl=META_CLICKS[i],mI=META_IMP[i];
+  var gSpy=py>=0?GADS.spend[py]:0,gCpy=py>=0?GADS.conv[py]:0;
+  var mSpy=py>=0?META_SPEND[py]:0,mCpy=py>=0?META_CONV[py]:0;
+
+  var tS=ch==='gads'?gS:ch==='meta'?mS:gS+mS;
+  var tC=ch==='gads'?gC:ch==='meta'?mC:gC+mC;
+  var tCl=ch==='gads'?gCl:ch==='meta'?mCl:gCl+mCl;
+  var tI=ch==='gads'?gI:ch==='meta'?mI:gI+mI;
+  var tSpy=ch==='gads'?gSpy:ch==='meta'?mSpy:gSpy+mSpy;
+  var tCpy=ch==='gads'?gCpy:ch==='meta'?mCpy:gCpy+mCpy;
+  var tCPR=tC>0?tS/tC:0,pyCPR=tCpy>0?tSpy/tCpy:0;
+  var tCTR=tI>0?(tCl/tI*100):0;
+
+  var kpis=[
+    {l:'Total spend',v:fmtM(tS),d:yoyStr(tS,tSpy),cls:yoyCls(tS,tSpy,true)},
+    {l:'Conversions',v:fmt(tC),d:yoyStr(tC,tCpy),cls:yoyCls(tC,tCpy,false)},
+    {l:'Cost per result',v:tCPR>0?'$'+tCPR.toFixed(2):'—',d:yoyStr(tCPR,pyCPR),cls:yoyCls(tCPR,pyCPR,true)},
+    {l:'Clicks',v:fmt(tCl),d:'—',cls:'neutral'},
+    {l:'Impressions',v:fmt(tI),d:'—',cls:'neutral'},
+    {l:'CTR',v:tCTR.toFixed(2)+'%',d:'—',cls:'neutral'},
+  ];
+  document.getElementById('adsKPI').innerHTML=kpis.map(function(k){
+    return '<div class="kpi"><div class="kpi-label">'+k.l+'</div><div class="kpi-value">'+k.v+'</div><div class="kpi-delta '+k.cls+'">'+k.d+' vs prior year</div></div>';
+  }).join('');
+
+  mk('spendC',{type:'bar',data:{labels:LB,datasets:[
+    {label:'Google Ads',data:GADS.spend,backgroundColor:'rgba(26,77,143,0.8)',borderColor:BLUE,borderWidth:1,stack:'s'},
+    {label:'Meta Ads',data:META_SPEND,backgroundColor:'rgba(168,50,88,0.8)',borderColor:PINK,borderWidth:1,stack:'s'},
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{stacked:true,ticks:{autoSkip:true,maxTicksLimit:8,color:'#6b6a65',font:{size:10}}},y:{stacked:true,ticks:{color:'#6b6a65',font:{size:10},callback:function(v){return'$'+(v>=1000?(v/1000).toFixed(0)+'K':v);}}}}}});
+
+  mk('convC',{type:'line',data:{labels:LB,datasets:[
+    {label:'Google Ads',data:GADS.conv,borderColor:BLUE,tension:0.3,pointRadius:2,borderWidth:2,fill:false},
+    {label:'Meta Ads',data:META_CONV,borderColor:PINK,tension:0.3,pointRadius:2,borderWidth:2,fill:false},
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{autoSkip:true,maxTicksLimit:8,color:'#6b6a65',font:{size:10}}},y:{ticks:{color:'#6b6a65',font:{size:10}}}}}});
+
+  var gCPRs=GADS.spend.map(function(s,j){return GADS.conv[j]>0?+(s/GADS.conv[j]).toFixed(2):null;});
+  var mCPRs=META_SPEND.map(function(s,j){return META_CONV[j]>0?+(s/META_CONV[j]).toFixed(2):null;});
+  mk('cprC',{type:'line',data:{labels:LB,datasets:[
+    {label:'Google Ads',data:gCPRs,borderColor:BLUE,tension:0.3,pointRadius:2,borderWidth:2,fill:false,spanGaps:false},
+    {label:'Meta Ads',data:mCPRs,borderColor:PINK,tension:0.3,pointRadius:2,borderWidth:2,fill:false,spanGaps:false},
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{autoSkip:true,maxTicksLimit:8,color:'#6b6a65',font:{size:10}}},y:{ticks:{color:'#6b6a65',font:{size:10},callback:function(v){return'$'+v;}}}}}});
+
+  function chBreak(spend,conv,clicks,imp,hasMeta){
+    if(!hasMeta&&spend===0)return'<div class="no-data">No data for this month</div>';
+    var cpr=conv>0?'$'+(spend/conv).toFixed(2):'—';
+    var ctr=imp>0?(clicks/imp*100).toFixed(2)+'%':'—';
+    return [['Spend',fmtM(spend)],['Conversions',fmt(conv)],['Cost / result',cpr],['Clicks',fmt(clicks)],['Impressions',fmt(imp)],['CTR',ctr]]
+      .map(function(r){return'<div class="ch-row"><span class="ch-name">'+r[0]+'</span><span class="ch-num">'+r[1]+'</span></div>';}).join('');
+  }
+  document.getElementById('gadsBreak').innerHTML=chBreak(gS,gC,gCl,gI,false);
+  document.getElementById('metaBreak').innerHTML=chBreak(mS,mC,mCl,mI,true);
+
+  var mo=MO[i];
+  var camps=CAMPS[mo]||CAMPS['2026-02'];
+  var nearest=mo;
+  if(!CAMPS[mo]){
+    var keys=Object.keys(CAMPS).sort();
+    for(var k=keys.length-1;k>=0;k--){if(keys[k]<=mo){nearest=keys[k];break;}}
+    camps=CAMPS[nearest]||CAMPS['2026-02'];
+  }
+  document.getElementById('campTitle').textContent='Google Ads campaigns';
+  document.getElementById('campSub').textContent=LB[i]+(mo!==nearest?' (showing '+nearest+' as nearest available)':'');
+  document.getElementById('campTable').innerHTML=
+    '<thead><tr><th>Campaign</th><th>Spend</th><th>Clicks</th><th>Conv.</th><th>Cost/result</th></tr></thead><tbody>'+
+    camps.map(function(c){
+      var cpr=c[3]>0?'$'+(c[1]/c[3]).toFixed(2):'—';
+      return '<tr><td>'+c[0]+'</td><td>'+fmtM(c[1])+'</td><td>'+fmt(c[2])+'</td><td>'+(c[3]>0?c[3].toFixed(1):'—')+'</td><td>'+cpr+'</td></tr>';
+    }).join('')+'</tbody>';
+}
+
+document.getElementById('moSel').addEventListener('change',update);
+document.getElementById('chSel').addEventListener('change',update);
+update();
+</script>
+</body>
+</html>
