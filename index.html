@@ -70,7 +70,7 @@
 
 <header>
   <div class="logo">Taming the High Cost of College <span>|</span> Ads Performance</div>
-  <div class="hmeta">Mar 2024 – Feb 2026</div>
+  <div class="hmeta">Mar 2024 – May 2026</div>
 </header>
 
 <div class="cbar">
@@ -91,7 +91,7 @@
   <div class="g2">
     <div class="card wide">
       <div class="ct">Monthly spend — Google Ads vs Meta Ads</div>
-      <div class="cs">Stacked · Mar 2024 to Feb 2026</div>
+      <div class="cs">Stacked · Mar 2024 to May 2026</div>
       <div class="leg">
         <div class="li"><div class="ld" style="background:#1a4d8f"></div>Google Ads</div>
         <div class="li"><div class="ld" style="background:#a83258"></div>Meta Ads</div>
@@ -142,22 +142,22 @@
 
 <footer>
   <div>Taming the High Cost of College — Ads Dashboard</div>
-  <div class="fm">Data verified · Windsor.ai · Updated Mar 2026</div>
+  <div class="fm">Data verified · Windsor.ai · Updated June 2026</div>
 </footer>
 
 <script>
-const LB=['Mar 24','Apr 24','May 24','Jun 24','Jul 24','Aug 24','Sep 24','Oct 24','Nov 24','Dec 24','Jan 25','Feb 25','Mar 25','Apr 25','May 25','Jun 25','Jul 25','Aug 25','Sep 25','Oct 25','Nov 25','Dec 25','Jan 26','Feb 26'];
-const MO=['2024-03','2024-04','2024-05','2024-06','2024-07','2024-08','2024-09','2024-10','2024-11','2024-12','2025-01','2025-02','2025-03','2025-04','2025-05','2025-06','2025-07','2025-08','2025-09','2025-10','2025-11','2025-12','2026-01','2026-02'];
+const LB=['Mar 24','Apr 24','May 24','Jun 24','Jul 24','Aug 24','Sep 24','Oct 24','Nov 24','Dec 24','Jan 25','Feb 25','Mar 25','Apr 25','May 25','Jun 25','Jul 25','Aug 25','Sep 25','Oct 25','Nov 25','Dec 25','Jan 26','Feb 26','Mar 26','Apr 26','May 26'];
+const MO=['2024-03','2024-04','2024-05','2024-06','2024-07','2024-08','2024-09','2024-10','2024-11','2024-12','2025-01','2025-02','2025-03','2025-04','2025-05','2025-06','2025-07','2025-08','2025-09','2025-10','2025-11','2025-12','2026-01','2026-02','2026-03','2026-04','2026-05'];
 
 const GADS={
-  spend:[1729.49,1432.66,929.20,2255.92,1514.96,1260.58,1076.88,1089.64,1699.38,1724.65,1809.91,1559.24,1640.56,1993.02,2033.81,2070.88,2275.73,2771.38,2440.87,2664.47,2212.70,2029.74,2168.58,1267.14],
-  conv:[96.51,105,110,157,168,147,286,462,661,344.93,487.77,589,748,732.94,1041.74,1091,1406,1438.78,1054.90,990.19,1253,1395.19,2354.86,1391.02],
-  clicks:[5730,4897,3319,4144,3590,4130,4156,5610,6380,4762,5112,3426,2952,3616,4074,3946,5465,7877,4068,5534,4087,3600,5617,3018],
-  imp:[69663,61247,32632,101869,47805,44642,45556,58420,138827,152025,224781,396629,282556,281293,330556,249484,244295,274407,261386,311406,276477,164460,337845,183520]
+  spend:[1729.49,1432.66,929.20,2255.92,1514.96,1260.58,1076.88,1089.64,1699.38,1724.65,1809.91,1559.24,1640.56,1993.02,2033.81,2070.88,2275.73,2771.38,2440.87,2664.47,2212.70,2029.74,2168.58,1267.14,0,1682.48,1155.98],
+  conv:[96.51,105,110,157,168,147,286,462,661,344.93,487.77,589,748,732.94,1041.74,1091,1406,1438.78,1054.90,990.19,1253,1395.19,2354.86,1391.02,0,749.9,771.96],
+  clicks:[5730,4897,3319,4144,3590,4130,4156,5610,6380,4762,5112,3426,2952,3616,4074,3946,5465,7877,4068,5534,4087,3600,5617,3018,0,2247,2128],
+  imp:[69663,61247,32632,101869,47805,44642,45556,58420,138827,152025,224781,396629,282556,281293,330556,249484,244295,274407,261386,311406,276477,164460,337845,183520,0,112452,72354]
 };
 
-const MS=Array(24).fill(0),MC=Array(24).fill(0),MCL=Array(24).fill(0),MI=Array(24).fill(0);
-[[14,126.01,218443,377,116],[15,452.57,462101,1790,1182],[16,608.76,313129,2777,2381],[17,563.49,244656,2259,1774],[18,458.79,180498,1733,1380]].forEach(function(d){
+const MS=Array(27).fill(0),MC=Array(27).fill(0),MCL=Array(27).fill(0),MI=Array(27).fill(0);
+[[14,126.01,218443,377,116],[15,452.57,462101,1790,1182],[16,608.76,313129,2777,2381],[17,563.49,244656,2259,1774],[18,458.79,180498,1733,1380],[24,157.28,47053,495,0]].forEach(function(d){
   MS[d[0]]=d[1];MI[d[0]]=d[2];MCL[d[0]]=d[3];MC[d[0]]=d[4];
 });
 
@@ -186,7 +186,9 @@ const CAMPS={
   '2025-11':[['Inheritance Blog Post',608.07,7613,395,154],['YT - 6 Ways to Pay',364.93,144463,532,522],['YT - 10 Types',364.88,99912,513,508],['Search - Cost of College',237.74,9388,477,8],['Search - SGBP',303.96,2561,235,19],['Search - Calculators',180.95,11064,1791,40],['Remarketing',152.17,1476,144,2]],
   '2025-12':[['Inheritance Blog Post',605.41,5239,698,178],['YT - 6 Ways to Pay',364.95,57926,585,566],['YT - 10 Types',364.92,82274,615,596],['Search - SGBP',298.64,3192,220,18.6],['Search - Cost of College',138.95,6914,293,9],['Search - Calculators',104.90,7650,1029,24],['Remarketing',151.97,1265,160,3.6]],
   '2026-01':[['YT - 10 Types',448.86,193229,1057,1014],['YT - 6 Ways to Pay',448.44,118887,1083,1022],['Inheritance Blog Post',601.76,4825,966,244],['Search - SGBP',303.36,2667,228,23],['Search - Calculators',231.53,13570,2030,44.9],['Search - Cost of College',96.33,4419,215,7],['Remarketing',38.29,248,38,0]],
-  '2026-02':[['YT - 10 Types',202.42,133250,421,408],['YT - 6 Ways to Pay',200.02,38375,487,465],['Inheritance Blog Post',405.22,1797,838,469.9],['Search - SGBP',303.68,1960,174,23.5],['Search - Calculators',91.18,5853,977,17.6],['Search - Cost of College',64.61,2285,121,7]]
+  '2026-02':[['YT - 10 Types',202.42,133250,421,408],['YT - 6 Ways to Pay',200.02,38375,487,465],['Inheritance Blog Post',405.22,1797,838,469.9],['Search - SGBP',303.68,1960,174,23.5],['Search - Calculators',91.18,5853,977,17.6],['Search - Cost of College',64.61,2285,121,7]],
+  '2026-04':[['Inheritance Blog Post',364.93,4407,300,0],['PMAX Webinar 2025',304.74,3211,166,0],['Search - SGBP',303.64,2048,193,0],['Search - Calculators - Milwaukee',155.28,1128,84,0],['YT - 10 Types',152.13,46432,252,0],['YT - 6 Ways to Pay',152.11,46803,273,0],['Search - Webinars',115.97,687,34,0],['Search - Calculators',85.18,5907,857,0],['Search - Cost of College',48.50,1829,88,0]],
+  '2026-05':[['Inheritance Blog Post',364.57,6071,327,0],['Search - SGBP',303.46,2016,201,0],['YT - 6 Ways to Pay',152.16,20959,286,0],['YT - 10 Types',152.12,33186,278,0],['Search - Cost of College',92.44,3756,162,0],['Search - Calculators',91.23,6366,874,0]]
 };
 
 let charts={};
@@ -198,7 +200,7 @@ function yoyStr(c,p){if(p===null||p===0)return'—';var d=((c-p)/p*100);return(d
 function yoyCls(c,p,lb){if(p===null||p===0)return'nt';return(lb?c<p:c>p)?'up':'dn';}
 
 MO.forEach(function(m,i){var o=document.createElement('option');o.value=i;o.textContent=LB[i];document.getElementById('moSel').appendChild(o);});
-document.getElementById('moSel').value=23;
+document.getElementById('moSel').value=26;
 
 function update(){
   var i=parseInt(document.getElementById('moSel').value);
@@ -266,6 +268,12 @@ function update(){
   document.getElementById('mBreak').innerHTML=chBrk(mS,mC,mCl,mI,mSpy,mCpy,mS>0);
 
   var mo=MO[i];
+  if(gS===0){
+    document.getElementById('campTitle').textContent='Campaign breakdown · '+LB[i];
+    document.getElementById('campSub').textContent='No Google Ads activity this month (campaigns paused)';
+    document.getElementById('campTable').innerHTML='<thead><tr><th>Campaign</th><th>Spend</th><th>Impressions</th><th>Clicks</th><th>Conv.</th><th>Cost / result</th></tr></thead><tbody><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:18px;">No Google Ads activity this month</td></tr></tbody>';
+    return;
+  }
   var exact=!!CAMPS[mo];
   var camps=CAMPS[mo];
   var nearestLabel='';
