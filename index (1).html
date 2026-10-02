@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Taming the High Cost of College &mdash; Ads Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root {
+    --bg:#f7f6f3;--surface:#ffffff;--border:#e4e2da;--text:#1a1917;--muted:#6b6a65;
+    --blue:#1a4d8f;--pink:#a83258;--green:#1a6645;--red:#b83232;--navy:#0f1f3d;
+    --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14px;}
+  header{background:var(--navy);padding:18px 32px;display:flex;align-items:center;justify-content:space-between;}
+  .logo{font-size:13px;font-weight:500;color:rgba(255,255,255,0.9);}
+  .logo span{color:rgba(255,255,255,0.35);margin:0 8px;}
+  .hmeta{font-size:11px;color:rgba(255,255,255,0.35);font-family:var(--mono);}
+  .cbar{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 32px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;}
+  .ctrl{display:flex;align-items:center;gap:8px;}
+  .ctrl label{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;}
+  select{font-family:var(--font);font-size:12px;font-weight:500;color:var(--text);background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:5px 28px 5px 10px;appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236b6a65'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;}
+  select:focus{outline:none;border-color:var(--blue);}
+  main{padding:28px 32px;max-width:1280px;}
+  .sec{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin:0 0 12px;}
+  .krow{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:28px;}
+  .kpi{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;}
+  .kl{font-size:11px;color:var(--muted);margin-bottom:6px;}
+  .kv{font-size:22px;font-weight:600;letter-spacing:-0.02em;line-height:1;}
+  .kd{font-size:11px;margin-top:5px;font-family:var(--mono);}
+  .up{color:var(--green);}.dn{color:var(--red);}.nt{color:var(--muted);}
+  .g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:16px;margin-bottom:24px;}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;}
+  .card.wide{grid-column:1/-1;}
+  .ct{font-size:12px;font-weight:600;color:var(--text);margin-bottom:3px;}
+  .cs{font-size:11px;color:var(--muted);margin-bottom:14px;}
+  .leg{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:12px;}
+  .li{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);}
+  .ld{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
+  .chg{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px;}
+  .chc{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 20px;}
+  .chh{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+  .chr{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);}
+  .chr:last-child{border-bottom:none;}
+  .chn{font-size:12px;color:var(--text);}
+  .chv{font-size:12px;font-weight:500;font-family:var(--mono);}
+  .chy{font-size:10px;font-family:var(--mono);margin-left:6px;}
+  .nodata{font-size:12px;color:var(--muted);padding:20px 0;text-align:center;}
+  .tw{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:28px;}
+  .th{padding:16px 20px 12px;border-bottom:1px solid var(--border);}
+  table{width:100%;border-collapse:collapse;font-size:12px;}
+  thead th{text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);padding:10px 20px;background:var(--bg);border-bottom:1px solid var(--border);}
+  thead th:not(:first-child){text-align:right;}
+  tbody td{padding:10px 20px;border-bottom:1px solid var(--border);}
+  tbody td:not(:first-child){text-align:right;font-family:var(--mono);font-size:11px;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover td{background:var(--bg);}
+  footer{margin-top:20px;padding:20px 32px;border-top:1px solid var(--border);font-size:11px;color:var(--muted);display:flex;justify-content:space-between;}
+  .fm{font-family:var(--mono);}
+  @media(max-width:700px){
+    header,main,footer,.cbar{padding-left:16px;padding-right:16px;}
+    .chg{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Taming the High Cost of College <span>|</span> Ads Performance</div>
+  <div class="hmeta">Mar 2024 &ndash; Sep 2026</div>
+</header>
+
+<div class="cbar">
+  <div class="ctrl"><label>Month</label><select id="moSel"></select></div>
+  <div class="ctrl"><label>Channel</label>
+    <select id="chSel">
+      <option value="all">All channels</option>
+      <option value="gads">Google Ads only</option>
+      <option value="meta">Meta Ads only</option>
+    </select>
+  </div>
+</div>
+
+<main>
+  <div class="sec">Overview &mdash; selected month vs same month prior year</div>
+  <div class="krow" id="kpiRow"></div>
+
+  <div class="g2">
+    <div class="card wide">
+      <div class="ct">Monthly spend &mdash; Google Ads vs Meta Ads</div>
+      <div class="cs">Stacked &middot; Mar 2024 to Sep 2026</div>
+      <div class="leg">
+        <div class="li"><div class="ld" style="background:#1a4d8f"></div>Google Ads</div>
+        <div class="li"><div class="ld" style="background:#a83258"></div>Meta Ads</div>
+      </div>
+      <div style="position:relative;width:100%;height:240px;"><canvas id="spendC"></canvas></div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ct">Conversions</div>
+      <div class="cs">Monthly &middot; Google Ads vs Meta Ads (Meta = landing page views)</div>
+      <div class="leg">
+        <div class="li"><div class="ld" style="background:#1a4d8f"></div>Google Ads</div>
+        <div class="li"><div class="ld" style="background:#a83258"></div>Meta Ads</div>
+      </div>
+      <div style="position:relative;width:100%;height:220px;"><canvas id="convC"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="ct">Cost per result</div>
+      <div class="cs">Monthly &middot; both channels</div>
+      <div class="leg">
+        <div class="li"><div class="ld" style="background:#1a4d8f"></div>Google Ads</div>
+        <div class="li"><div class="ld" style="background:#a83258"></div>Meta Ads</div>
+      </div>
+      <div style="position:relative;width:100%;height:220px;"><canvas id="cprC"></canvas></div>
+    </div>
+  </div>
+
+  <div class="sec">Channel breakdown &mdash; selected month vs prior year</div>
+  <div class="chg">
+    <div class="chc"><div class="chh">Google Ads</div><div id="gBreak"></div></div>
+    <div class="chc">
+      <div class="chh">Meta Ads <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:10px;">&middot; conversions = landing page views</span></div>
+      <div id="mBreak"></div>
+    </div>
+  </div>
+
+  <div class="sec">Campaign breakdown &mdash; Google Ads, selected month</div>
+  <div class="tw">
+    <div class="th">
+      <div class="ct" id="campTitle"></div>
+      <div class="cs" id="campSub"></div>
+    </div>
+    <div style="overflow-x:auto;"><table id="campTable"></table></div>
+  </div>
+</main>
+
+<footer>
+  <div>Taming the High Cost of College &mdash; Ads Dashboard</div>
+  <div class="fm">Data verified &middot; Windsor.ai &middot; Updated August 2026</div>
+</footer>
+
+<script>
+const LB=['Mar 24','Apr 24','May 24','Jun 24','Jul 24','Aug 24','Sep 24','Oct 24','Nov 24','Dec 24','Jan 25','Feb 25','Mar 25','Apr 25','May 25','Jun 25','Jul 25','Aug 25','Sep 25','Oct 25','Nov 25','Dec 25','Jan 26','Feb 26','Mar 26','Apr 26','May 26','Jun 26','Jul 26','Aug 26','Sep 26'];
+const MO=['2024-03','2024-04','2024-05','2024-06','2024-07','2024-08','2024-09','2024-10','2024-11','2024-12','2025-01','2025-02','2025-03','2025-04','2025-05','2025-06','2025-07','2025-08','2025-09','2025-10','2025-11','2025-12','2026-01','2026-02','2026-03','2026-04','2026-05','2026-06','2026-07','2026-08','2026-09'];
+
+const GADS={
+  spend:[1729.49,1432.66,929.2,2255.92,1514.96,1260.58,1076.88,1089.64,1699.38,1724.65,1809.91,1559.24,1640.56,1993.02,2033.81,2070.88,2275.73,2771.38,2440.87,2664.47,2212.7,2029.74,2168.58,1267.14,1845.23,1682.48,1155.98,1148.77,1982.78,1413,1228.2],
+  conv:[96.51,105,110,157,168,147,286,462,661,344.93,487.77,589,748,732.94,1041.74,1091,1406,1438.78,1054.9,990.19,1253,1395.19,2354.86,1391.02,812.89,749.9,772.96,671.75,915,861,830],
+  clicks:[5730,4897,3319,4144,3590,4130,4156,5610,6380,4762,5112,3426,2952,3616,4074,3946,5465,7877,4068,5534,4087,3600,5617,3018,2907,2247,2128,1830,2940,2530,2575],
+  imp:[69663,61247,32632,101869,47805,44642,45556,58420,138827,152025,224781,396629,282556,281293,330556,249484,244295,274407,261386,311406,276477,164460,337845,183520,114252,112452,72354,73952,119489,75679,89522]
+};
+
+const MS=Array(31).fill(0),MC=Array(31).fill(0),MCL=Array(31).fill(0),MI=Array(31).fill(0);
+// [monthIndex, spend, impressions, clicks, conversions(landing page views)]
+[
+[15,126.01,218443,377,116],
+[16,452.57,462101,1790,1182],
+[17,608.76,313129,2777,2381],
+[18,563.49,244656,2259,1774],
+[19,458.79,180498,1733,1380],
+[24,157.28,47053,519,315],
+[28,498.28,46846,1256,691],
+[29,216.02,6571,444,238]
+].forEach(function(d){
+  MS[d[0]]=d[1];MI[d[0]]=d[2];MCL[d[0]]=d[3];MC[d[0]]=d[4];
+});
+
+// campaigns: [name, spend, impressions, clicks, conversions]
+const CAMPS={
+  '2024-03':[['Inheritance Blog Post',1031.85,35155,1626,1.0],['Search - Calculators',304.26,13938,2060,44.51],['SAI Calculator - US',121.45,8073,718,0.0],['Cost of College - PA',117.63,2999,338,27.0],['Cost of College - TX',60.75,3389,357,10.0],['Cost of College - WI',53.82,3229,348,2.0],['Search - Cost of College',35.95,2212,230,9.0],['Cost of College - CA',3.78,658,53,3.0],['Cost of College - IL',0,10,0,0.0]],
+  '2024-04':[['Inheritance Blog Post',706.43,20577,1127,1.0],['Search - Calculators',304.0,15438,1751,34.0],['SAI Calculator - US',121.58,13619,750,0.0],['Cost of College - PA',119.05,1728,251,27.0],['Cost of College - TX',60.82,2889,303,10.0],['Search - Cost of College',60.8,3968,384,26.0],['Cost of College - WI',51.58,1953,247,4.0],['Cost of College - CA',8.4,1075,84,3.0]],
+  '2024-05':[['Search - Calculators',304.0,14183,1619,35.0],['Inheritance - Videos',268.6,4666,186,7.0],['Cost of College - PA',118.0,1776,262,26.0],['Cost of College - WI',60.83,1797,260,6.0],['Cost of College - TX',60.8,2564,278,8.0],['Search - Cost of College',60.8,3259,320,16.0],['Cost of College - CA',29.26,2413,258,12.0],['SAI Calculator - US',26.91,1974,136,0.0]],
+  '2024-06':[['Inheritance - Videos',761.2,7678,370,6.0],['Video Views Test',420.2,57396,53,0.0],['Inheritance Blog Post',316.4,7117,358,1.0],['Search - Calculators',304.01,13242,1760,45.0],['Cost of College - PA',118.55,1540,228,38.0],['Remarketing',105.21,4267,185,15.0],['Search - Cost of College',60.8,3375,350,19.0],['Cost of College - TX',60.78,2645,233,3.0],['Cost of College - WI',60.68,1781,237,13.0],['Cost of College - CA',48.09,2828,370,17.0]],
+  '2024-07':[['Inheritance - Videos',561.17,4225,162,3.0],['Inheritance Blog Post',227.99,5821,275,50.0],['Search - Calculators',152.08,8271,1210,21.0],['Remarketing',151.69,5747,223,18.0],['Cost of College - PA',118.56,3570,381,28.0],['Video Views Test',62.49,8007,9,0.0],['Cost of College - WI',60.95,2036,269,9.0],['Search - Cost of College',60.82,4110,423,13.0],['Cost of College - TX',60.81,2285,183,5.0],['Cost of College - CA',58.06,3671,452,21.0],['Cost of College - IL',0.33,62,3,0.0]],
+  '2024-08':[['Inheritance Blog Post',341.62,5536,383,89.0],['Inheritance - Videos',276.26,1930,155,0.0],['Remarketing',152.42,8111,202,5.0],['Search - Calculators',142.9,11820,1756,15.0],['Cost of College - PA',99.94,4925,399,13.0],['Search - Cost of College',60.79,4271,422,10.0],['Cost of College - WI',56.44,1714,263,5.0],['Cost of College - TX',53.3,2429,193,2.0],['Cost of College - CA',37.25,2555,334,8.0],['Video Views Test',36.78,985,4,0.0],['Cost of College - IL',2.88,366,19,0.0]],
+  '2024-09':[['Inheritance Blog Post',456.5,7640,761,159.0],['Search - Calculators',152.34,11297,1865,53.0],['Remarketing',151.8,13003,235,13.0],['Cost of College - PA',118.64,3924,358,28.0],['Cost of College - TX',61.48,2076,185,6.0],['Cost of College - WI',61.12,1723,255,4.0],['Search - Cost of College',60.78,4019,370,20.0],['Cost of College - CA',10.21,1198,87,3.0],['Cost of College - IL',4.01,674,40,0.0]],
+  '2024-10':[['Inheritance Blog Post',454.07,8680,1112,306.0],['Remarketing',152.32,16023,257,10.0],['Search - Calculators',152.1,14824,2797,65.0],['Cost of College - PA',118.53,2741,280,36.0],['Cost of College - WI',60.82,2057,244,9.0],['Search - Cost of College',60.78,6727,425,22.0],['Cost of College - TX',60.75,2862,245,7.0],['Cost of College - IL',17.7,1666,102,3.0],['Cost of College - CA',12.58,2840,148,4.0]],
+  '2024-11':[['Inheritance Blog Post',456.03,7136,1176,510.0],['YT - SGBP',375.98,62367,133,0.0],['Search - SGBP',222.8,16266,806,19.0],['Remarketing',152.42,21570,200,10.0],['Search - Calculators',152.17,14822,2850,71.0],['Cost of College - PA',118.5,3445,269,19.0],['Cost of College - TX',61.04,3626,234,4.0],['Cost of College - WI',60.82,2055,197,6.0],['Search - Cost of College',60.74,4102,322,14.0],['Cost of College - IL',30.64,2461,114,4.0],['Cost of College - CA',8.24,977,79,4.0]],
+  '2024-12':[['YT - SGBP',456.32,83098,179,0.0],['Inheritance Blog Post',448.53,9554,527,219.93],['Search - SGBP',176.02,16768,662,27.0],['Remarketing',152.62,14739,247,13.0],['Search - Calculators',152.15,11991,1998,33.0],['Cost of College - PA',118.66,3671,291,22.0],['Cost of College - TX',61.92,3753,244,4.0],['Search - Cost of College',61.28,3634,276,16.0],['Cost of College - WI',60.86,2567,181,7.0],['Cost of College - IL',32.46,1750,117,2.0],['Cost of College - CA',3.83,500,40,1.0]],
+  '2025-01':[['YT - SGBP',456.25,131116,237,0.0],['Inheritance Blog Post',455.78,11024,590,290.21],['Search - SGBP',221.42,17140,856,30.56],['Remarketing',152.53,14637,283,19.0],['Search - Calculators',152.2,13838,2053,37.0],['Video Engagement - 6 Ways to Pay',99.53,23471,50,61.0],['Cost of College - PA',85.81,2351,237,16.0],['Search - Cost of College',53.58,3220,244,15.0],['Cost of College - TX',50.21,2939,181,8.0],['Cost of College - WI',44.67,2178,160,5.0],['Cost of College - IL',27.46,1750,123,5.0],['Cost of College - CA',10.48,1117,98,1.0]],
+  '2025-02':[['YT - SGBP',456.47,120063,196,0.0],['Inheritance Blog Post',454.1,8480,627,273.0],['Video Engagement - 6 Ways to Pay',304.19,242395,260,260.0],['Remarketing',152.22,12006,297,14.0],['Search - Calculators',152.18,11815,1921,39.0],['Search - Cost of College',27.04,1202,75,2.0],['Cost of College - TX',8.61,397,34,1.0]],
+  '2025-03':[['YT - SGBP',456.48,75154,251,0.0],['Inheritance Blog Post',447.98,9459,614,265.0],['Video Engagement - 6 Ways to Pay',304.22,174134,208,233.0],['Remarketing',152.29,11145,328,12.0],['Search - Calculators',152.18,8574,1239,202.0],['Search - Cost of College',60.85,1970,115,4.0],['Cost of College - IL',43.68,859,123,29.0],['Cost of College - TX',13.64,561,29,1.0],['Cost of College - PA',6.28,656,41,1.0],['Search - SGBP',2.85,17,3,1.0]],
+  '2025-04':[['YT - SGBP',456.44,53643,375,0.0],['Inheritance Blog Post',454.93,9282,694,275.0],['Video Engagement - 6 Ways to Pay',304.23,177194,218,229.0],['Search - SGBP',253.85,1890,167,24.94],['Remarketing',152.22,26799,449,8.0],['Search - Calculators',152.19,8524,1235,157.0],['Cost of College - PA',84.64,1181,181,10.0],['Search - Cost of College',59.61,1229,93,2.0],['Cost of College - IL',55.6,1002,157,26.0],['Cost of College - TX',19.3,549,47,1.0]],
+  '2025-05':[['YT - SGBP',456.45,51887,547,0.0],['Inheritance Blog Post',454.03,6635,1078,601.88],['Video Engagement - 6 Ways to Pay',304.29,233592,238,211.0],['Search - SGBP',303.38,3331,238,25.86],['Remarketing',152.26,22238,291,4.0],['Search - Calculators',152.13,7231,1158,153.0],['Cost of College - PA',90.52,1553,212,23.0],['Search - Cost of College',60.83,2142,133,5.0],['Cost of College - IL',38.91,1034,135,15.0],['Cost of College - TX',21.01,898,44,3.0]],
+  '2025-06':[['YT - SGBP',456.59,51673,366,0.0],['Inheritance Blog Post',441.22,7999,1449,641.0],['Video Engagement - 6 Ways to Pay',304.27,154682,332,282.0],['Search - SGBP',303.79,3676,239,31.0],['Remarketing',152.34,19342,295,6.0],['Search - Calculators',152.17,5307,760,75.0],['Cost of College - PA',100.33,1209,195,27.0],['Search - Cost of College',60.78,2603,125,9.0],['Cost of College - WI',36.49,899,44,0.0],['Cost of College - IL',31.93,804,86,19.0],['Cost of College - TX',30.98,1290,55,1.0]],
+  '2025-07':[['Inheritance Blog Post',601.75,8414,1250,657.0],['Video Engagement - 6 Ways to Pay',370.24,159247,627,476.0],['Search - Calculators',305.06,12849,1691,175.0],['Search - SGBP',304.77,4290,266,27.0],['YT - SGBP',172.89,31069,320,0.0],['Remarketing',151.72,17685,441,20.0],['Cost of College - PA',116.32,1647,217,26.0],['Search - Cost of College',60.92,3052,128,7.0],['Cost of College - IL',55.46,1130,165,14.0],['Cost of College - TX',53.35,2446,108,3.0],['Cost of College - WI',43.35,1258,53,1.0],['PMAX Webinar 2025',39.9,1208,199,0.0]],
+  '2025-08':[['Inheritance Blog Post',607.08,10274,1645,727.0],['PMAX Webinar 2025',598.65,57485,1913,2.0],['Video Engagement - 6 Ways to Pay',310.89,111335,433,333.0],['Search - Calculators',304.23,13542,2225,244.0],['Search - SGBP',300.94,4361,281,33.78],['YT - SGBP',152.33,19372,136,0.0],['Remarketing',152.3,18083,450,3.0],['Cost of College - PA',115.67,2376,285,22.0],['Search - Cost of College',60.91,3042,135,8.0],['YT - 6 Ways to Pay',60.04,30549,65,54.0],['Cost of College - IL',54.06,1558,189,11.0],['Cost of College - WI',29.35,934,46,1.0],['Cost of College - TX',24.93,1496,74,0.0]],
+  '2025-09':[['PMAX Webinar 2025',607.67,38356,405,0.0],['Inheritance Blog Post',581.36,14398,616,555.43],['YT - 6 Ways to Pay',364.95,155461,438,381.0],['Search - SGBP',302.46,4052,258,30.95],['Search - Calculators',194.69,16415,1899,61.53],['YT - SGBP',152.48,19226,61,0.0],['Remarketing',152.18,7645,143,4.0],['Search - Cost of College',60.9,3799,145,16.0],['Cost of College - PA',12.0,978,55,6.0],['Cost of College - TX',10.98,673,38,0.0],['Cost of College - IL',1.21,357,10,0.0]],
+  '2025-10':[['Inheritance Blog Post',594.1,12315,692,229.89],['PMAX Webinar 2025',451.73,25616,202,3.0],['YT - 6 Ways to Pay',364.95,145126,417,351.0],['YT - 10 Types',348.16,93458,385,311.0],['Search - SGBP',294.84,3825,257,26.0],['Search - Calculators',272.11,19860,3093,52.41],['Remarketing',152.14,1641,152,2.0],['Search - Cost of College',142.34,5505,270,9.88],['YT - SGBP',22.16,3113,7,0.0],['Cost of College - TX',21.24,793,54,5.0],['Cost of College - PA',0.63,127,4,0.0],['Cost of College - IL',0.06,27,1,0.0]],
+  '2025-11':[['Inheritance Blog Post',608.07,7613,395,154.0],['YT - 6 Ways to Pay',364.93,144463,532,522.0],['YT - 10 Types',364.88,99912,513,508.0],['Search - SGBP',303.96,2561,235,19.0],['Search - Cost of College',237.74,9388,477,8.0],['Search - Calculators',180.95,11064,1791,40.0],['Remarketing',152.17,1476,144,2.0]],
+  '2025-12':[['Inheritance Blog Post',605.41,5239,698,178.0],['YT - 6 Ways to Pay',364.95,57926,585,566.0],['YT - 10 Types',364.92,82274,615,596.0],['Search - SGBP',298.64,3192,220,18.56],['Remarketing',151.97,1265,160,3.62],['Search - Cost of College',138.95,6914,293,9.0],['Search - Calculators',104.9,7650,1029,24.0]],
+  '2026-01':[['Inheritance Blog Post',601.76,4825,966,244.0],['YT - 10 Types',448.86,193229,1057,1014.0],['YT - 6 Ways to Pay',448.44,118887,1083,1022.0],['Search - SGBP',303.36,2667,228,23.0],['Search - Calculators',231.53,13570,2030,44.86],['Search - Cost of College',96.33,4419,215,7.0],['Remarketing',38.29,248,38,0.0]],
+  '2026-02':[['Inheritance Blog Post',405.22,1797,838,469.95],['Search - SGBP',303.69,1960,174,23.51],['YT - 10 Types',202.42,133250,421,408.0],['YT - 6 Ways to Pay',200.02,38375,487,465.0],['Search - Calculators',91.18,5853,977,17.56],['Search - Cost of College',64.61,2285,121,7.0]],
+  '2026-03':[['PMAX Webinar 2025',466.6,11183,405,29.94],['Inheritance Blog Post',364.55,3123,366,187.0],['Search - SGBP',303.73,2073,156,14.0],['Search - Calculators - Milwaukee',223.67,927,93,0.94],['YT - 6 Ways to Pay',152.15,41841,314,299.0],['YT - 10 Types',152.12,45157,258,252.0],['Search - Calculators',94.35,7110,1169,20.0],['Search - Cost of College',88.07,2838,146,10.0]],
+  '2026-04':[['Inheritance Blog Post',364.93,4407,300,162.9],['PMAX Webinar 2025',304.74,3211,166,1.0],['Search - SGBP',303.64,2048,193,37.0],['Search - Calculators - Milwaukee',155.28,1128,84,2.0],['YT - 10 Types',152.13,46432,252,249.0],['YT - 6 Ways to Pay',152.11,46803,273,271.0],['Search - Webinars',115.97,687,34,0.0],['Search - Calculators',85.18,5907,857,17.0],['Search - Cost of College',48.5,1829,88,10.0]],
+  '2026-05':[['Inheritance Blog Post',364.57,6071,327,167.96],['Search - SGBP',303.46,2016,201,32.0],['YT - 6 Ways to Pay',152.16,20959,286,278.0],['YT - 10 Types',152.12,33186,278,270.0],['Search - Cost of College',92.44,3756,162,9.0],['Search - Calculators',91.23,6366,874,16.0]],
+  '2026-06':[['Inheritance Blog Post',364.83,4533,265,114.0],['Search - SGBP',305.17,2363,207,36.75],['YT - 6 Ways to Pay',152.13,27396,271,263.0],['YT - 10 Types',152.12,31903,240,232.0],['Search - Cost of College',107.84,3473,181,12.0],['Search - Calculators',66.68,4284,666,14.0]],
+  '2026-07':[['Search - Webinars',531.31,5535,227,11.0],['Inheritance Blog Post',364.96,6058,320,149.0],['Search - SGBP',303.82,2880,180,22.0],['Search - Cost of College',243.33,6925,309,22.0],['Search - Calculators',235.05,11045,1217,43.0],['YT - 6 Ways to Pay',152.17,54349,332,322.0],['YT - 10 Types',152.14,32697,355,346.0]],
+  '2026-08':[['Inheritance Blog Post',364.26,6657,315,164],['Search - SGBP',304.14,2890,211,27],['Search - Webinars',202.34,919,60,1],['YT - 6 Ways to Pay',152.13,26888,359,346],['YT - 10 Types',152.12,24083,333,318],['Search - Calculators',147.1,11049,1102,1],['Search - Cost of College',90.92,3193,150,4]],
+  '2026-09':[['Inheritance Blog Post',364.9,7122,367,189],['Search - SGBP',303.72,2686,222,25],['Search - Calculators',157.89,15423,1253,38],['YT - 6 Ways to Pay',152.14,35625,290,278],['YT - 10 Types',152.11,26281,312,296],['Search - Cost of College',97.44,2385,131,4]]
+};
+
+let charts={};
+function mk(id,cfg){if(charts[id])charts[id].destroy();charts[id]=new Chart(document.getElementById(id),cfg);}
+function fmt(n){return Math.round(n).toLocaleString();}
+function fmtM(n){return'$'+n.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});}
+function fmtK(n){return n>=1000?'$'+(n/1000).toFixed(1)+'K':'$'+n.toFixed(0);}
+function yoyStr(c,p){if(p===null||p===0)return'\u2014';var d=((c-p)/p*100);return(d>=0?'\u25B2 +':'\u25BC ')+Math.abs(d).toFixed(1)+'%';}
+function yoyCls(c,p,lb){if(p===null||p===0)return'nt';return(lb?c<p:c>p)?'up':'dn';}
+
+MO.forEach(function(m,i){var o=document.createElement('option');o.value=i;o.textContent=LB[i];document.getElementById('moSel').appendChild(o);});
+document.getElementById('moSel').value=MO.length-1;
+
+function update(){
+  var i=parseInt(document.getElementById('moSel').value);
+  var ch=document.getElementById('chSel').value;
+  var py=i>=12?i-12:null;
+
+  var gS=GADS.spend[i],gC=GADS.conv[i],gCl=GADS.clicks[i],gI=GADS.imp[i];
+  var mS=MS[i],mC=MC[i],mCl=MCL[i],mI=MI[i];
+  var gSpy=py!==null?GADS.spend[py]:null;
+  var gCpy=py!==null?GADS.conv[py]:null;
+  var mSpy=py!==null?MS[py]:null;
+  var mCpy=py!==null?MC[py]:null;
+
+  var tS=ch==='gads'?gS:ch==='meta'?mS:gS+mS;
+  var tC=ch==='gads'?gC:ch==='meta'?mC:gC+mC;
+  var tCl=ch==='gads'?gCl:ch==='meta'?mCl:gCl+mCl;
+  var tI=ch==='gads'?gI:ch==='meta'?mI:gI+mI;
+  var tSpy=ch==='gads'?gSpy:ch==='meta'?mSpy:(gSpy!==null?gSpy+mSpy:null);
+  var tCpy=ch==='gads'?gCpy:ch==='meta'?mCpy:(gCpy!==null?gCpy+mCpy:null);
+  var tCPR=tC>0?tS/tC:0;
+  var pyCPR=tCpy&&tCpy>0?tSpy/tCpy:null;
+  var tCTR=tI>0?(tCl/tI*100):0;
+
+  document.getElementById('kpiRow').innerHTML=[
+    {l:'Total spend',v:fmtM(tS),d:yoyStr(tS,tSpy),c:yoyCls(tS,tSpy,true)},
+    {l:'Conversions',v:fmt(tC),d:yoyStr(tC,tCpy),c:yoyCls(tC,tCpy,false)},
+    {l:'Cost per result',v:tCPR>0?'$'+tCPR.toFixed(2):'\u2014',d:yoyStr(tCPR,pyCPR),c:yoyCls(tCPR,pyCPR,true)},
+    {l:'Clicks',v:fmt(tCl),d:'\u2014',c:'nt'},
+    {l:'Impressions',v:fmt(tI),d:'\u2014',c:'nt'},
+    {l:'CTR',v:tCTR.toFixed(2)+'%',d:'\u2014',c:'nt'},
+  ].map(function(k){return'<div class="kpi"><div class="kl">'+k.l+'</div><div class="kv">'+k.v+'</div><div class="kd '+k.c+'">'+k.d+' YoY</div></div>';}).join('');
+
+  mk('spendC',{type:'bar',data:{labels:LB,datasets:[
+    {label:'Google Ads',data:GADS.spend,backgroundColor:'rgba(26,77,143,0.85)',borderColor:'#1a4d8f',borderWidth:1,stack:'s'},
+    {label:'Meta Ads',data:MS,backgroundColor:'rgba(168,50,88,0.85)',borderColor:'#a83258',borderWidth:1,stack:'s'}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return' '+ctx.dataset.label+': '+fmtM(ctx.raw);}}}},scales:{x:{stacked:true,ticks:{autoSkip:true,maxTicksLimit:12,color:'#6b6a65',font:{size:10}}},y:{stacked:true,ticks:{color:'#6b6a65',font:{size:10},callback:function(v){return fmtK(v);}}}}}});
+
+  mk('convC',{type:'line',data:{labels:LB,datasets:[
+    {label:'Google Ads',data:GADS.conv,borderColor:'#1a4d8f',tension:0.3,pointRadius:2,borderWidth:2,fill:false},
+    {label:'Meta Ads',data:MC,borderColor:'#a83258',tension:0.3,pointRadius:3,borderWidth:2,fill:false,spanGaps:false}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return' '+ctx.dataset.label+': '+fmt(ctx.raw);}}}},scales:{x:{ticks:{autoSkip:true,maxTicksLimit:12,color:'#6b6a65',font:{size:10}}},y:{ticks:{color:'#6b6a65',font:{size:10}}}}}});
+
+  var gCPRs=GADS.spend.map(function(s,j){return GADS.conv[j]>0?+(s/GADS.conv[j]).toFixed(2):null;});
+  var mCPRs=MS.map(function(s,j){return MC[j]>0?+(s/MC[j]).toFixed(2):null;});
+  mk('cprC',{type:'line',data:{labels:LB,datasets:[
+    {label:'Google Ads',data:gCPRs,borderColor:'#1a4d8f',tension:0.3,pointRadius:2,borderWidth:2,fill:false,spanGaps:false},
+    {label:'Meta Ads',data:mCPRs,borderColor:'#a83258',tension:0.3,pointRadius:3,borderWidth:2,fill:false,spanGaps:false}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return ctx.raw!==null?' '+ctx.dataset.label+': $'+ctx.raw:'No data';}}}},scales:{x:{ticks:{autoSkip:true,maxTicksLimit:12,color:'#6b6a65',font:{size:10}}},y:{ticks:{color:'#6b6a65',font:{size:10},callback:function(v){return'$'+v;}}}}}});
+
+  function chBrk(s,c,cl,im,spy,cpy,show){
+    if(!show&&s===0)return'<div class="nodata">No data for this month</div>';
+    var cpr=c>0?'$'+(s/c).toFixed(2):'\u2014';
+    var ctr=im>0?(cl/im*100).toFixed(2)+'%':'\u2014';
+    var gCPR=c>0?s/c:null,pyCPR_=cpy&&cpy>0?spy/cpy:null;
+    return[
+      ['Spend',fmtM(s),yoyStr(s,spy),yoyCls(s,spy,true)],
+      ['Conversions',fmt(c),yoyStr(c,cpy),yoyCls(c,cpy,false)],
+      ['Cost / result',cpr,gCPR&&pyCPR_?yoyStr(gCPR,pyCPR_):'\u2014',gCPR&&pyCPR_?yoyCls(gCPR,pyCPR_,true):'nt'],
+      ['Clicks',fmt(cl),'\u2014','nt'],
+      ['Impressions',fmt(im),'\u2014','nt'],
+      ['CTR',ctr,'\u2014','nt'],
+    ].map(function(r){return'<div class="chr"><span class="chn">'+r[0]+'</span><span><span class="chv">'+r[1]+'</span><span class="chy '+r[3]+'">'+r[2]+'</span></span></div>';}).join('');
+  }
+  document.getElementById('gBreak').innerHTML=chBrk(gS,gC,gCl,gI,gSpy,gCpy,true);
+  document.getElementById('mBreak').innerHTML=chBrk(mS,mC,mCl,mI,mSpy,mCpy,mS>0);
+
+  var mo=MO[i];
+  if(gS===0){
+    document.getElementById('campTitle').textContent='Campaign breakdown \u00b7 '+LB[i];
+    document.getElementById('campSub').textContent='No Google Ads activity this month (campaigns paused)';
+    document.getElementById('campTable').innerHTML='<thead><tr><th>Campaign</th><th>Spend</th><th>Impressions</th><th>Clicks</th><th>Conv.</th><th>Cost / result</th></tr></thead><tbody><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:18px;">No Google Ads activity this month</td></tr></tbody>';
+    return;
+  }
+  var exact=!!CAMPS[mo];
+  var camps=CAMPS[mo];
+  var nearestLabel='';
+  if(!camps){
+    var keys=Object.keys(CAMPS).sort();
+    for(var k=keys.length-1;k>=0;k--){if(keys[k]<=mo){camps=CAMPS[keys[k]];nearestLabel=keys[k];break;}}
+    if(!camps){camps=CAMPS[keys[0]];nearestLabel=keys[0];}
+  }
+  var sorted=camps.slice().sort(function(a,b){return b[1]-a[1];});
+  document.getElementById('campTitle').textContent='Campaign breakdown \u2014 '+LB[i];
+  document.getElementById('campSub').textContent=exact?'All campaigns \u00b7 sorted by spend':('No exact data for '+LB[i]+' \u2014 showing '+nearestLabel+' as nearest reference');
+  document.getElementById('campTable').innerHTML=
+    '<thead><tr><th>Campaign</th><th>Spend</th><th>Impressions</th><th>Clicks</th><th>Conv.</th><th>Cost / result</th></tr></thead><tbody>'+
+    sorted.map(function(c){
+      var cpr=c[4]>0?'$'+(c[1]/c[4]).toFixed(2):'\u2014';
+      return'<tr><td>'+c[0]+'</td><td>'+fmtM(c[1])+'</td><td>'+fmt(c[2])+'</td><td>'+fmt(c[3])+'</td><td>'+(c[4]>0?c[4].toFixed(1):'\u2014')+'</td><td>'+cpr+'</td></tr>';
+    }).join('')+'</tbody>';
+}
+
+document.getElementById('moSel').addEventListener('change',update);
+document.getElementById('chSel').addEventListener('change',update);
+update();
+</script>
+</body>
+</html>
